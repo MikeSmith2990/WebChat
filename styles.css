@@ -1,0 +1,33 @@
+body {
+    height: 100vh;
+    margin: 0;
+    background-color: rgb(212, 229, 245);
+}
+
+#messager{
+    border: 1px solid rgb(128, 170, 206);
+    height: 500px;
+    width: 600px;
+    margin: auto;
+    position: relative;
+}
+#messages{
+    background: aliceblue;
+    height: calc(100% - 23px);
+    overflow-y: scroll;
+}
+.message{
+    
+}
+#controls{
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+}
+#textInput{
+    width: calc(100% - 100px);
+}
+#btn{
+    width: 80px;
+    float: right;
+}
