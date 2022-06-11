@@ -28,7 +28,7 @@
     
     //send message
     function appendMessage(messageBody){
-        const messageBody = { text: document.getElementById('textInput').value }
+        messageBody = { text: document.getElementById('textInput').value }
         ws.send(JSON.stringify(messageBody))
         document.getElementById('textInput').value = ''
         document.getElementById('textInput').focus()
