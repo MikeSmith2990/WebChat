@@ -39,12 +39,13 @@ export default class WebSocketHandler{
             message.className = 'message'
             message.style.color = '#' + messageBody.color
             message.innerText = new Date().toLocaleString().split(',')[1].trim() +": " + messageBody.text
+            
             messageBox.append(message)
         }
         
-        console.log('adding listener...')
+        console.log('adding listener...');
         //button click
-        document.getElementById('btn').addEventListener('click', (evt) => {
+        (document.getElementById('btn') as HTMLButtonElement).addEventListener('click', (evt) => {
             this.appendMessage()
         })
         //enter key
@@ -61,7 +62,7 @@ export default class WebSocketHandler{
         const messageBody = { text: (document.getElementById('textInput') as HTMLInputElement).value }
         this.ws.send(JSON.stringify(messageBody));
         (document.getElementById('textInput') as HTMLInputElement).value = '';
-        document.getElementById('textInput').focus();
+        (document.getElementById('textInput') as HTMLInputElement).focus();
     }
 }
 
