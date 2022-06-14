@@ -1,6 +1,7 @@
-const WebSocket = require('ws');
+import * as webSocket from 'ws'
+import Message from './message'
 
-const wss = new WebSocket.Server({ port: 7071 });
+const wss = new webSocket.Server({ port: 7071 });
 const clients = new Map();
 
 wss.on('connection', (ws) => {
@@ -12,9 +13,9 @@ wss.on('connection', (ws) => {
     clients.set(ws, metadata);
 
     ws.on('message', (messageAsString) => {
-      const message = JSON.parse(messageAsString);
+      const message: Message = JSON.parse(messageAsString);
       const metadata = clients.get(ws);
-
+      
       message.sender = metadata.id;
       message.color = metadata.color;
 
