@@ -3,14 +3,21 @@ const websocketAddress = 'ws://127.0.0.1:7071/ws'
 export default class WebSocketHandler{
 
     public ws: WebSocket
+    private username: string
 
     constructor () {
     }
 
-    public async init(){
+    public async init(username){
         console.log('Initializing websocket...')
+        this.username = username
         this.ws = await this.connectToServer()
         this.initHandlers(this.ws)
+
+        //send username
+        const messageBody = { username: this.username, command: "setUsername"}
+        this.ws.send(JSON.stringify(messageBody));
+
         console.log('init complete!')
     }
 
@@ -38,10 +45,10 @@ export default class WebSocketHandler{
             const message = document.createElement('DIV')
             message.className = 'message'
             message.style.color = '#' + messageBody.color
-            message.innerText = new Date().toLocaleString().split(',')[1].trim() +": " + messageBody.text
+            message.innerText = new Date().toLocaleString().split(',')[1].trim() + " " + messageBody.username + ": " + messageBody.text
             messageBox.append(message)
         }
-        
+
         console.log('adding listener...')
         //button click
         document.getElementById('btn').addEventListener('click', (evt) => {
@@ -66,9 +73,9 @@ export default class WebSocketHandler{
 }
 
 export class WebSocketFactory{
-    public static async start(){
+    public static async start(username){
         const webSocketHandler = new WebSocketHandler();
-        webSocketHandler.init();
+        webSocketHandler.init(username);
         return webSocketHandler;
     }
 }
