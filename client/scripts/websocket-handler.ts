@@ -32,13 +32,16 @@ export default class WebSocketHandler{
         ws.onmessage = (webSocketMessage) => {
             console.log('message received')
             const messageBody = JSON.parse(webSocketMessage.data)
+
             //add message to chat log
-            document.getElementById('messages').innerHTML = 
-            document.getElementById('messages').innerHTML + 
-            (`<div class='message' style="color: #${messageBody.color}">
-                ${new Date().toLocaleString().split(',')[1].trim()}: ${messageBody.text}
-            </div>`)
+            const messageBox = document.getElementById('messages') as HTMLElement
+            const message = document.createElement('DIV')
+            message.className = 'message'
+            message.style.color = '#' + messageBody.color
+            message.innerText = new Date().toLocaleString().split(',')[1].trim() +": " + messageBody.text
+            messageBox.append(message)
         }
+        
         console.log('adding listener...')
         //button click
         document.getElementById('btn').addEventListener('click', (evt) => {
