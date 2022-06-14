@@ -8,16 +8,23 @@ wss.on('connection', (ws) => {
     const id = uuidv4();
     console.log("connection made: " + id)
     const color = Math.floor(Math.random() * 999999);
-    const metadata = { id, color };
+    const metadata = { id, color, username : '' };
 
     clients.set(ws, metadata);
 
     ws.on('message', (messageAsString) => {
       const message: Message = JSON.parse(messageAsString.toString());
       const metadata = clients.get(ws);
-      
+
+      // if username value is present, assign username to metadata and discard message
+      if(message.command === "setUsername")
+      {
+        metadata.username = message.username;
+        return
+      }
       message.sender = metadata.id;
       message.color = metadata.color;
+      message.username = metadata.username;
 
       console.log(message);
       
