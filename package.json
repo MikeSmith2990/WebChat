@@ -4,14 +4,15 @@
   "description": "we learn about sockets",
   "main": "index.js",
   "scripts": {
-    "build": "parcel build client/index.html --public-url ./",
-    "start-client": "parcel client/index.html && node api/main.js",
-    "start-server": "node api/main.js"
+    "build": "parcel build client/index.html --public-url ./ && tsc --project .\\api\\tsconfig.json",
+    "start-client": "parcel client/index.html",
+    "start-server": "tsc --project .\\api\\tsconfig.json && node api/dist/main.js"
   },
   "author": "two guys",
   "license": "ISC",
   "dependencies": {
     "@types/node": "^17.0.42",
+    "@types/ws": "^8.5.3",
     "color-string": "^1.5.5",
     "eventemitter3": "^3.0.1",
     "glob-parent": "5.1.2",

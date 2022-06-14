@@ -13,7 +13,7 @@ wss.on('connection', (ws) => {
     clients.set(ws, metadata);
 
     ws.on('message', (messageAsString) => {
-      const message: Message = JSON.parse(messageAsString);
+      const message: Message = JSON.parse(messageAsString.toString());
       const metadata = clients.get(ws);
       
       message.sender = metadata.id;
@@ -22,18 +22,18 @@ wss.on('connection', (ws) => {
       console.log(message);
       
       //echo user messages
-      [...clients.keys()].forEach((client) => {
-        client.send(JSON.stringify(message));
+      clients.forEach((client, ws) => {
+        ws.send(JSON.stringify(message));
       });
     });  
 
     //join message
-    [...clients.keys()].forEach((client) => {
-      client.send(JSON.stringify({text: 'Someone joined!'}));
+    clients.forEach((client, ws) => {
+      ws.send(JSON.stringify({text: 'Someone joined!'}));
     });
 });
 
-wss.on("close", (ws) => {
+wss.on("close", (ws: any) => {
   console.log("connection closed: " + ws.metadata.id)
   clients.delete(ws);
 });
