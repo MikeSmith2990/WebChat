@@ -1,6 +1,7 @@
-const WebSocket = require('ws');
+import * as webSocket from 'ws'
+import Message from './message'
 
-const wss = new WebSocket.Server({ port: 7071 });
+const wss = new webSocket.Server({ port: 7071 });
 const clients = new Map();
 
 wss.on('connection', (ws) => {
@@ -12,27 +13,27 @@ wss.on('connection', (ws) => {
     clients.set(ws, metadata);
 
     ws.on('message', (messageAsString) => {
-      const message = JSON.parse(messageAsString);
+      const message: Message = JSON.parse(messageAsString.toString());
       const metadata = clients.get(ws);
-
+      
       message.sender = metadata.id;
       message.color = metadata.color;
 
       console.log(message);
       
       //echo user messages
-      [...clients.keys()].forEach((client) => {
-        client.send(JSON.stringify(message));
+      clients.forEach((client, ws) => {
+        ws.send(JSON.stringify(message));
       });
     });  
 
     //join message
-    [...clients.keys()].forEach((client) => {
-      client.send(JSON.stringify({text: 'Someone joined!'}));
+    clients.forEach((client, ws) => {
+      ws.send(JSON.stringify({text: 'Someone joined!'}));
     });
 });
 
-wss.on("close", (ws) => {
+wss.on("close", (ws: any) => {
   console.log("connection closed: " + ws.metadata.id)
   clients.delete(ws);
 });
