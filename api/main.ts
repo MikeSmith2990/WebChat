@@ -1,43 +1,54 @@
 import * as webSocket from 'ws'
-import Message from './message'
+import Message from '../lib/message'
+import { uuidv4 } from './utils';
 
 const wss = new webSocket.Server({ port: 7071 });
 const clients = new Map();
 
 wss.on('connection', (ws) => {
-    const id = uuidv4();
-    console.log("connection made: " + id)
-    const color = Math.floor(Math.random() * 999999);
-    const metadata = { id, color, username : '' };
+  const id = uuidv4();
+  console.log("connection made: " + id)
+  const color = Math.floor(Math.random() * 999999);
+  const username = ''
+  const metadata = { id, color, username };
 
-    clients.set(ws, metadata);
+  clients.set(ws, metadata);
 
-    ws.on('message', (messageAsString) => {
-      const message: Message = JSON.parse(messageAsString.toString());
-      const metadata = clients.get(ws);
 
-      // if username value is present, assign username to metadata and discard message
-      if(message.command === "setUsername")
-      {
-        metadata.username = message.username;
-        return
-      }
-      message.sender = metadata.id;
-      message.color = metadata.color;
-      message.username = metadata.username;
 
-      console.log(message);
-      
-      //echo user messages
-      clients.forEach((client, ws) => {
-        ws.send(JSON.stringify(message));
-      });
-    });  
+  ws.on('message', (data) => {
+    const request: Message = JSON.parse(data.toString());
+    console.log(request);
+    const client = clients.get(ws)
+    console.log(client.username)
 
-    //join message
-    clients.forEach((client, ws) => {
-      ws.send(JSON.stringify({text: 'Someone joined!'}));
-    });
+    const metadata = clients.get(ws);
+
+    switch (request.command) {
+      case 'setUsername':
+        metadata.username = request.params.username;
+        const responseParams = {
+          id: metadata.id,
+          color: metadata.color,
+          username: metadata.username,
+        }
+        const response = new Message();
+        response.command = 'setUsername';
+        response.params = JSON.stringify(responseParams);
+        ws.send(JSON.stringify({ response }));
+        break;
+      case 'chatMessage':
+        clients.forEach((client, ws) => {
+          ws.send(JSON.stringify(request));
+        });
+        break;
+    }
+  });
+
+  //join message
+  clients.forEach((client, ws) => {
+    ws.send(JSON.stringify({ text: 'Someone joined!' }));
+  });
 });
 
 wss.on("close", (ws: any) => {
@@ -45,11 +56,4 @@ wss.on("close", (ws: any) => {
   clients.delete(ws);
 });
 
-function uuidv4() {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-    var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-    return v.toString(16);
-  });
-}
-
-console.log("wss up");
+console.log("Websocket server started on port 7071");

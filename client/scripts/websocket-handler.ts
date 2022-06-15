@@ -1,24 +1,28 @@
+import Message from "../../lib/message"
+import User from "../../lib/user"
+
 const websocketAddress = 'ws://127.0.0.1:7071/ws'
 
-export default class WebSocketHandler{
+export default class WebSocketHandler {
 
     public ws: WebSocket
-    private username: string
+    public user: User = new User()
 
-    constructor () {
+    constructor() {
     }
 
-    public async init(username){
+    public async init(username) {
+
         console.log('Initializing websocket...')
-        this.username = username
         this.ws = await this.connectToServer()
-        this.initHandlers(this.ws)
 
-        //send username
-        const messageBody = { username: this.username, command: "setUsername"}
-        this.ws.send(JSON.stringify(messageBody));
+        //handle incoming messages
+        this.initHandlers()
 
-        console.log('init complete!')
+        //send username, get id
+        this.initProfile(username)
+
+        console.log('Init complete!')
     }
 
     private async connectToServer(): Promise<WebSocket> {
@@ -35,45 +39,69 @@ export default class WebSocketHandler{
         })
     }
 
-    private initHandlers(ws: WebSocket): void{
-        ws.onmessage = (webSocketMessage) => {
+    private initHandlers(): void {
+        this.ws.onmessage = (webSocketMessage) => {
             console.log('message received')
-            const messageBody = JSON.parse(webSocketMessage.data)
+            return
+            const message: Message = JSON.parse(webSocketMessage.data)
+            const params = JSON.parse(message.params)
 
-            //add message to chat log
-            const messageBox = document.getElementById('messages') as HTMLElement
-            const message = document.createElement('DIV')
-            message.className = 'message'
-            message.style.color = '#' + messageBody.color
-            message.innerText = new Date().toLocaleString().split(',')[1].trim() + " " + messageBody.username + ": " + messageBody.text
-            messageBox.append(message)
+            switch (message.command) {
+                case 'chatMessage':
+                    console.log('chat message received')
+                    //add message to chat log
+                    const messageBox = document.getElementById('messages') as HTMLElement
+                    const messageHTML = document.createElement('DIV')
+                    messageHTML.className = 'message'
+                    messageHTML.style.color = '#' + params.color
+                    messageHTML.innerText =
+                        `${new Date().toLocaleString().split(',')[1].trim()}
+                         ${params.username}: ${params.text}`
+                    messageBox.append(messageHTML)
+                    break;
+                case 'setUsername':
+                    console.log('username set')
+                    //set username
+                    this.user.username = params.username
+                    this.user.color = params.color
+                    this.user.id = params.id
+                    break;
+                default:
+                    console.log('unknown command')
+                    break;
+            }
         }
 
-        console.log('adding listener...')
+        console.log('Adding key and button listener...');
         //button click
-        document.getElementById('btn').addEventListener('click', (evt) => {
+        (document.getElementById('btn') as HTMLButtonElement).addEventListener('click', (evt) => {
             this.appendMessage()
         })
         //enter key
         document.addEventListener('keyup', (evt) => {
-            if(evt.keyCode == 13){
+            if (evt.keyCode == 13) {
                 this.appendMessage()
             }
         })
-        console.log('listener added!')
+        console.log('Listeners added!')
     }
-    
+
+    private initProfile(username: string): void {
+        const messageBody = { params: {username}, command: "setUsername" }
+        this.ws.send(JSON.stringify(messageBody));
+    }
+
     //send message
-    private appendMessage(): void{
+    private appendMessage(): void {
         const messageBody = { text: (document.getElementById('textInput') as HTMLInputElement).value }
         this.ws.send(JSON.stringify(messageBody));
         (document.getElementById('textInput') as HTMLInputElement).value = '';
-        document.getElementById('textInput').focus();
+        (document.getElementById('textInput') as HTMLInputElement).focus();
     }
 }
 
-export class WebSocketFactory{
-    public static async start(username){
+export class WebSocketFactory {
+    public static async start(username) {
         const webSocketHandler = new WebSocketHandler();
         webSocketHandler.init(username);
         return webSocketHandler;
