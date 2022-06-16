@@ -1,5 +1,5 @@
 import * as webSocket from 'ws'
-import Message from './message'
+import Message from '../lib/message'
 
 const wss = new webSocket.Server({ port: 7071 });
 const clients = new Map();
@@ -12,31 +12,45 @@ wss.on('connection', (ws) => {
 
     clients.set(ws, metadata);
 
-    ws.on('message', (messageAsString) => {
-      const message: Message = JSON.parse(messageAsString.toString());
-      const metadata = clients.get(ws);
+    ws.on('message', (data) => {
+      const request: Message = JSON.parse(data.toString());
 
-      // if username value is present, assign username to metadata and discard message
-      if(message.command === "setUsername")
-      {
-        metadata.username = message.username;
-        return
+      console.log(request)
+      const client = clients.get(ws);
+      console.log(client.username)
+
+      switch (request.command) {
+        case 'setUsername':
+          // set the username server-side and reply to client with their client data to affirm
+          client.username = request.params.username
+          const responseParams = {
+            id : client.id,
+            color: client.color,
+            username: client.username,
+          }
+          const response = new Message()
+          response.command = 'setUsername'
+          response.params = responseParams
+          ws.send(JSON.stringify({response}))
+          console.log("username set to: " + client.username)
+
+        case 'chatMessage':
+          // relay chat message to all connected clients
+          request.params.username = client.username
+          request.params.color = client.color
+          clients.forEach((client, ws) => {
+            ws.send(JSON.stringify(request));
+          });
       }
-      message.sender = metadata.id;
-      message.color = metadata.color;
-      message.username = metadata.username;
 
-      console.log(message);
-      
-      //echo user messages
-      clients.forEach((client, ws) => {
-        ws.send(JSON.stringify(message));
-      });
     });  
 
     //join message
     clients.forEach((client, ws) => {
-      ws.send(JSON.stringify({text: 'Someone joined!'}));
+      const message = new Message()
+      message.command = 'serverMessage'
+      message.params = {text: "User Joined!"}
+      ws.send(JSON.stringify(message));
     });
 });
 

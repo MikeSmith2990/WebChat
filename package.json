@@ -6,7 +6,7 @@
   "scripts": {
     "build": "parcel build client/index.html --public-url ./ && tsc --project .\\api\\tsconfig.json",
     "start-client": "parcel client/index.html",
-    "start-server": "tsc --project .\\api\\tsconfig.json && node api/dist/main.js"
+    "start-server": "tsc --project .\\api\\tsconfig.json && node dist/api/main.js"
   },
   "author": "two guys",
   "license": "ISC",
