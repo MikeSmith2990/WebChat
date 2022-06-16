@@ -1,4 +1,4 @@
-import {emitter, debug} from '../index'
+import GameEngine from "./game-engine"
 
 class Debug{
     public playerXPosition = 0
@@ -8,9 +8,9 @@ class Debug{
     public weapon = ''
     public direction = ''
 
-	constructor(){
+	constructor(gm: GameEngine){
 		//draw on event 
-		emitter.on('renderObjects', this.update.bind(this))
+		gm.emitter.on('renderObjects', this.update.bind(this))
     }
     update(){
         const debuggerPanel = document.getElementById('debugger')

@@ -1,11 +1,5 @@
-import {
-	keystates,
-	level,
-	debug,
-	canvas,
-	camera
-} from '../index'
 import Drawable from './drawable'
+import GameEngine from './game-engine'
 
 const tileSize = 25
 
@@ -22,19 +16,20 @@ class Player extends Drawable{
 	public moveSpeed: number = 7
 
 	constructor(
+		public gm: GameEngine,
 		public x: number,
 		public y: number
 	) {
-		super()
+		super(gm)
 		this.zIndex = 2
-		camera.originX = x - canvas.width / 2
-		camera.originY = y - canvas.height / 2
+		this.gm.camera.originX = x - this.gm.canvas.width / 2
+		this.gm.camera.originY = y - this.gm.canvas.height / 2
 	}
 
 	draw() {
 		//draw player
-		canvas.ctx.fillStyle = '#000000'
-		canvas.ctx.fillRect(this.xForCamera, this.y, this.width, this.height)
+		this.gm.canvas.ctx.fillStyle = '#000000'
+		this.gm.canvas.ctx.fillRect(this.xForCamera, this.y, this.width, this.height)
 	}
 
 	update() {
@@ -49,11 +44,11 @@ class Player extends Drawable{
 		//distance to move
 		let delta = 0
 		//move player based on input
-		if (keystates.RightArrowIsActive) {
+		if (this.gm.keystates.RightArrowIsActive) {
 			this.direction = 'right'
 			delta = this.moveSpeed
 		}
-		if (keystates.LeftArrowIsActive) {
+		if (this.gm.keystates.LeftArrowIsActive) {
 			this.direction = 'left'
 			delta = this.moveSpeed * -1
 		}
@@ -61,17 +56,17 @@ class Player extends Drawable{
 		if (delta) this.moveHorizontal(delta)
 
 		//jump
-		if (keystates.SpaceIsActive && this.canJump) this.jump()
+		if (this.gm.keystates.SpaceIsActive && this.canJump) this.jump()
 
 		//prevent the player from moving past the halfway point of the screen
-		if (level.offsetX === 0) {
+		if (this.gm.level.offsetX === 0) {
 			this.xForCamera = this.x
 		}
 
 		//log player stats to debugger
-		debug.playerXPosition = this.x
-		debug.playerYPosition = this.y
-		debug.direction = this.direction
+		this.gm.debug.playerXPosition = this.x
+		this.gm.debug.playerYPosition = this.y
+		this.gm.debug.direction = this.direction
 	}
 
 	moveHorizontal(delta: number) {
@@ -84,8 +79,8 @@ class Player extends Drawable{
 					break
 				}
 				//set level offset to keep player centered on canvas
-				if (this.x + (this.width / 2) > canvas.width / 2) {
-					level.offsetX++
+				if (this.x + (this.width / 2) > this.gm.canvas.width / 2) {
+					this.gm.level.offsetX++
 				}
 			}
 			//move left
@@ -97,8 +92,8 @@ class Player extends Drawable{
 					break
 				}
 				//set level offset to keep player centered on canvas
-				if (level.offsetX > 0) {
-					level.offsetX--
+				if (this.gm.level.offsetX > 0) {
+					this.gm.level.offsetX--
 				}
 			}
 		}
@@ -125,12 +120,12 @@ class Player extends Drawable{
 		const playerBottomAlignment = Math.floor((player.y + player.height - 1) / tileSize);
 
 		//iterate level data and see if any of the intersected tiles are solid
-		positionIsValid = level.tiles.filter(t =>
+		positionIsValid = this.gm.level.tiles.filter(t =>
 			(t.col === playerRightAlignment || t.col === playerLeftAlignment) &&
 			(t.row === playerTopAlignment || t.row === playerBottomAlignment) &&
 			t.isSolid
 		).length === 0 &&
-			player.x >= 0 && player.x <= level.width * level.tiles[0].w - player.width - 1
+			player.x >= 0 && player.x <= this.gm.level.width * this.gm.level.tiles[0].w - player.width - 1
 
 		//return validity of position
 		return positionIsValid;
@@ -168,7 +163,7 @@ class Player extends Drawable{
 
 	getFloor() {
 		const player = this;
-		let floorRow = level.height;
+		let floorRow = this.gm.level.height;
 
 		//tile the player's left side is in
 		const playerLeftTileLocation = Math.floor(player.x / tileSize);
@@ -178,7 +173,7 @@ class Player extends Drawable{
 		const playerYAlignment = Math.ceil((player.y + player.height) / tileSize);
 
 		//get tiles under player
-		const underTiles = level.tiles.filter(t =>
+		const underTiles = this.gm.level.tiles.filter(t =>
 			(t.col === playerRightTileLocation || t.col === playerLeftTileLocation)
 			&& t.row === playerYAlignment
 		)
@@ -205,7 +200,7 @@ class Player extends Drawable{
 		const playerYAlignment = Math.ceil((player.y) / tileSize);
 
 		//get tiles above player
-		const overTiles = level.tiles.filter(t =>
+		const overTiles = this.gm.level.tiles.filter(t =>
 			(t.col === playerRightTileLocation || t.col === playerLeftTileLocation)
 			&& t.row < playerYAlignment - 1
 		)

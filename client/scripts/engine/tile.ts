@@ -1,5 +1,5 @@
-import {emitter, canvas, level} from '../index' 
 import Drawable from './drawable'
+import GameEngine from './game-engine'
 
 class Tile extends Drawable {
 	public readonly w = 25
@@ -9,11 +9,12 @@ class Tile extends Drawable {
 	public y = this.row * this.h
   
 	constructor(
+		public gm: GameEngine,
 		public col: number,
 		public row: number,
 		public isSolid: boolean
 	) {  
-		super()
+		super(gm)
 		this.zIndex = 1
 		this.x = this.col * this.w
 		this.y = this.row * this.h
@@ -24,13 +25,13 @@ class Tile extends Drawable {
 
 	draw(){
 		//determine where to draw the tile
-		const fallsShort = ((this.col + 1) * this.w) - level.offsetX < 0
+		const fallsShort = ((this.col + 1) * this.w) - this.gm.level.offsetX < 0
 		if(!fallsShort){
 			var thickness = 1
-			canvas.ctx.fillStyle = '#DDD'
-			canvas.ctx.fillRect(this.x - level.offsetX - (thickness), this.y - (thickness), this.w + (thickness * 2), this.h + (thickness * 2))
-			canvas.ctx.fillStyle = this.isSolid ? '#aaa' : '#FFF'
-			canvas.ctx.fillRect(this.x - level.offsetX, this.y, this.w, this.h)
+			this.gm.canvas.ctx.fillStyle = '#DDD'
+			this.gm.canvas.ctx.fillRect(this.x - this.gm.level.offsetX - (thickness), this.y - (thickness), this.w + (thickness * 2), this.h + (thickness * 2))
+			this.gm.canvas.ctx.fillStyle = this.isSolid ? '#aaa' : '#FFF'
+			this.gm.canvas.ctx.fillRect(this.x - this.gm.level.offsetX, this.y, this.w, this.h)
 		}
 	}
 }

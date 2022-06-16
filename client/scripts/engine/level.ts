@@ -1,4 +1,4 @@
-import {emitter, debug} from '../index'
+import GameEngine from './game-engine'
 import Tile from './tile'
 
 class Level {
@@ -11,16 +11,17 @@ class Level {
 
     public tiles:Tile[] = []
     constructor(
+        public gm: GameEngine,
         public readonly width: number, 
         public readonly height: number
     ){
         //listen for updates
-        emitter.on('renderObjects', this.update.bind(this))
+        gm.emitter.on('renderObjects', this.update.bind(this))
         
         //this is where we add tiles to the level, it will be redone at some point
         for(let col = 0; col < this.width; col++){
             for (let row = 0; row < this.height; row++) {
-                const tile = new Tile(col, row, false)
+                const tile = new Tile(this.gm, col, row, false)
                 if(row >= 14){
                     tile.isSolid = true
                 }
@@ -30,8 +31,8 @@ class Level {
         }
     }
     update(){
-        debug.levelXOffset = this.offsetX
-        debug.levelYOffset = this.offsetY
+        this.gm.debug.levelXOffset = this.offsetX
+        this.gm.debug.levelYOffset = this.offsetY
     }
 }
 

@@ -1,9 +1,9 @@
-import { emitter } from ".."
 import Drawable from "./drawable"
+import GameEngine from "./game-engine"
 export default class DrawQueue{
     public drawables: Drawable[] = []
-    constructor(){
-		emitter.on('renderObjects', this.processQueue.bind(this))
+    constructor(gm: GameEngine){
+		gm.emitter.on('renderObjects', this.processQueue.bind(this))
     }
 
     public processQueue(){

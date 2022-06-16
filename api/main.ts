@@ -22,15 +22,13 @@ wss.on('connection', (ws) => {
     const client = clients.get(ws)
     console.log(client.username)
 
-    const metadata = clients.get(ws);
-
     switch (request.command) {
       case 'setUsername':
-        metadata.username = request.params.username;
+        client.username = request.params.username;
         const responseParams = {
-          id: metadata.id,
-          color: metadata.color,
-          username: metadata.username,
+          id: client.id,
+          color: client.color,
+          username: client.username,
         }
         const response = new Message();
         response.command = 'setUsername';

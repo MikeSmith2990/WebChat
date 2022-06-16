@@ -1,0 +1,83 @@
+body {
+    height: 100%;
+    margin: 0;
+    background-color: rgb(212, 229, 245);
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+#main-area{display: none;}
+
+
+#game-canvas {
+    background: white
+}
+
+#messager{
+    border: 1px solid rgb(128, 170, 206);
+    height: 600px;
+    width: 300px;
+    margin: auto;
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+#messages{
+    background: aliceblue;
+    height: calc(100% - 23px);
+    overflow-y: scroll;
+}
+.message{
+    
+}
+#controls{
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+}
+#textInput{
+    width: calc(100% - 100px);
+}
+#btn{
+    width: 80px;
+    float: right;
+}
+
+#usernamePrompt{
+    margin: auto;
+    margin-top: 200px;
+    width: 300px;
+    background-color: white;
+    padding: 50px;
+    border-radius: 4px;
+    box-shadow: 1px 1px 2px #537799;
+}
+
+#usernameLabel{
+    padding-top: 4px;
+    display: inline-block;
+}
+
+#usernameInput{
+    display: inline;
+    float: right;
+    width: 200px;
+    padding: 4px;
+    border-radius: 4px;
+}
+
+#usernameBtn{
+    width: 100%;
+    margin:auto;
+    margin-top: 25px;
+    display: block;
+    border: none;
+    padding: 4px;
+    color: white;
+    background: #61a5e4;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+#usernameBtn:hover{
+    background: #3a73a8;
+}

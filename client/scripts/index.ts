@@ -1,66 +1,21 @@
-import {EventEmitter} from 'eventemitter3'
-import Canvas from './engine/canvas'
-import DrawQueue from "./engine/draw-queue";
-import Camera from "./engine/camera";
-import Keystates from "./engine/keystates";
-import Debug from './engine/debug'
-import Level from './engine/level'
-import Player from './engine/player'
+import { WebSocketHandler, WebSocketFactory } from "./websocket-handler";
+import gameEngine from "./engine/game-engine";
 
 
-import { WebSocketFactory } from "./websocket-handler";
+let conn: Promise<WebSocketHandler> | null = null;
 
-export const emitter = new EventEmitter()
-export const drawQueue = new DrawQueue()
-export const canvas = new Canvas()
-export const camera = new Camera()
-export const keystates = new Keystates()
-export const debug = new Debug()
-export const level = new Level(100,25)
-export const player1 = new Player(level.playerStartX, level.playerStartY)
-
-
-function initGame(){
-	//register key listeners
-	document.addEventListener("keydown", function(evt) {
-		keystates.setKey(evt.keyCode, true)
+//login event
+async function init (){
+	(document.getElementById('usernameBtn') as HTMLButtonElement).addEventListener('click', (evt) => {
+		const username = (document.getElementById('usernameInput') as HTMLInputElement).value
+		// allow for only alphanumeric names with spaces
+		if (!/^[A-Za-z0-9]*$/.test(username)) {
+			console.log("Error in username!")
+		}
+		else {
+			(document.getElementById('main-area') as HTMLElement).style.display = 'block';
+			(document.getElementById('usernamePrompt') as HTMLElement).style.display = 'none';
+			conn = WebSocketFactory.start(username)
+		}
 	})
-	document.addEventListener("keyup", function(evt) {
-		keystates.setKey(evt.keyCode, false)
-	})
-
-	emitter.emit('updatePhysics')
-	emitter.emit('renderObjects')
-
-	//calc physics at 60fps
-	var phyicsLoop = setInterval(function(){
-		emitter.emit('updatePhysics')
-	}, 16)
-
-	//draw at 60 fps as well
-	var renderLoop = setInterval(function(){
-		emitter.emit('renderObjects')
-	}, 16)
 }
-
-const messanger = document.getElementById('messager') as HTMLElement
-const userPrompt = document.getElementById('usernamePrompt') as HTMLElement
-
-messanger.style.display = 'none';
-userPrompt.style.display = 'block';
-
-(document.getElementById('usernameBtn') as HTMLButtonElement).addEventListener('click', (evt) => {
-    const username = (document.getElementById('usernameInput') as HTMLInputElement).value
-    // allow for only alphanumeric names with spaces
-    if(!/^[A-Za-z0-9]*$/.test(username))
-    {
-        console.log("Error in username!")
-    }
-    else
-    {
-        userPrompt.style.display = 'none'
-        messanger.style.display = 'block'
-        const conn = WebSocketFactory.start(username)
-    }
-})
-
