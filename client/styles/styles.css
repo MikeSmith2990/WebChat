@@ -37,3 +37,18 @@ body {
     width: 80px;
     float: right;
 }
+#usernamePrompt{
+    position: absolute;
+    top: 200px;
+    left: calc(50% - 125px);
+    width: 250px;
+}
+#usernameControls{
+}
+#usernameInput{
+    width: calc(100% - 100px);
+}
+#usernameBtn{
+    width: 80px;
+    float: right;
+}
