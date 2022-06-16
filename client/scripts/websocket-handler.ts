@@ -18,7 +18,7 @@ export default class WebSocketHandler{
         this.initHandlers(this.ws)
 
         //send username
-        const messageBody = { username: this.username, command: "setUsername"}
+        const messageBody = { params: {username: this.username}, command: "setUsername"}
         this.ws.send(JSON.stringify(messageBody));
 
         console.log('init complete!')
