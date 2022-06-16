@@ -1,3 +1,6 @@
+import Message from "../../lib/message"
+import User from "../../lib/user"
+
 const websocketAddress = 'ws://127.0.0.1:7071/ws'
 
 export default class WebSocketHandler{
@@ -38,35 +41,69 @@ export default class WebSocketHandler{
     private initHandlers(ws: WebSocket): void{
         ws.onmessage = (webSocketMessage) => {
             console.log('message received')
-            const messageBody = JSON.parse(webSocketMessage.data)
+            const message: Message = JSON.parse(webSocketMessage.data)
+            const params = message.params
 
-            //add message to chat log
-            const messageBox = document.getElementById('messages') as HTMLElement
-            const message = document.createElement('DIV')
-            message.className = 'message'
-            message.style.color = '#' + messageBody.color
-            message.innerText = new Date().toLocaleString().split(',')[1].trim() + " " + messageBody.username + ": " + messageBody.text
-            messageBox.append(message)
+            switch (message.command) {
+                case 'chatMessage':
+                case 'serverMessage':
+                    console.log('chat/server message received')
+                    //add message to chat log
+                    this.appendMessage(message)
+                    break;
+                case 'setUsername':
+                    console.log('username set')
+                    //set username
+                    this.username = params.username
+                    break;
+                default:
+                    console.log('unknown command')
+                    break;
+            }
         }
 
         console.log('adding listener...')
         //button click
         document.getElementById('btn').addEventListener('click', (evt) => {
-            this.appendMessage()
+            this.sendMessage()
         })
         //enter key
         document.addEventListener('keyup', (evt) => {
             if(evt.keyCode == 13){
-                this.appendMessage()
+                this.sendMessage()
             }
         })
         console.log('listener added!')
     }
     
+    // Append incoming message to the chat window
+    private appendMessage(message: Message): void{
+        const messageBox = document.getElementById('messages') as HTMLElement
+        const messageHTML = document.createElement('DIV')
+        messageHTML.className = 'message'
+        var username = ''
+        if(message.params.color) {
+            messageHTML.style.color = '#' + message.params.color    
+        }
+        else {
+            messageHTML.style.color = '#000000' // server message is always black
+        }
+        if(message.params.username){
+            username = message.params.username
+        }
+        else {
+            username = 'SERVER'
+        }
+        messageHTML.innerText =
+            `${new Date().toLocaleString().split(',')[1].trim()} ${username}: ${message.params.text}`
+        messageBox.append(messageHTML)
+    }
+
     //send message
-    private appendMessage(): void{
-        const messageBody = { text: (document.getElementById('textInput') as HTMLInputElement).value }
-        this.ws.send(JSON.stringify(messageBody));
+    private sendMessage(): void{
+        const param = { text: (document.getElementById('textInput') as HTMLInputElement).value, username: this.username }
+        const message = {command: 'chatMessage', params: param}
+        this.ws.send(JSON.stringify(message));
         (document.getElementById('textInput') as HTMLInputElement).value = '';
         document.getElementById('textInput').focus();
     }
