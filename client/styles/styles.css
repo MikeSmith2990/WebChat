@@ -14,10 +14,19 @@ body {
 #messages{
     background: aliceblue;
     height: calc(100% - 23px);
+    width: calc(75%);
     overflow-y: scroll;
+    float: left;
 }
 .message{
     
+}
+#userList{
+    background: rgb(162, 164, 167);
+    position: relative;
+    height: calc(100% - 23px);
+    overflow-y: scroll;
+    float: right;
 }
 #controls{
     position: absolute;
