@@ -1,9 +1,8 @@
 import Message from "../../lib/message"
-import User from "../../lib/user"
 
 const websocketAddress = 'ws://127.0.0.1:7071/ws'
 
-export default class WebSocketHandler{
+export class WebSocketHandler{
 
     public ws: WebSocket
     private username: string
