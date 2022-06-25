@@ -1,5 +1,5 @@
 import * as webSocket from 'ws'
-import Message from '../lib/message'
+import Message from '../../lib/message'
 
 const wss = new webSocket.Server({ port: 7071 });
 const clients = new Map();

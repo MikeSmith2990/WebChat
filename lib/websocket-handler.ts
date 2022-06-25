@@ -4,13 +4,13 @@ const websocketAddress = 'ws://127.0.0.1:7071/ws'
 
 export class WebSocketHandler{
 
-    public ws: WebSocket
-    private username: string
+    public ws: WebSocket | null = null
+    private username: string = ''
 
     constructor () {
     }
 
-    public async init(username){
+    public async init(username: string){
         console.log('Initializing websocket...')
         this.username = username
         this.ws = await this.connectToServer()
@@ -61,9 +61,9 @@ export class WebSocketHandler{
             }
         }
 
-        console.log('adding listener...')
+        console.log('adding listener...');
         //button click
-        document.getElementById('btn').addEventListener('click', (evt) => {
+        (document.getElementById('btn') as HTMLButtonElement).addEventListener('click', (evt) => {
             this.sendMessage()
         })
         //enter key
@@ -102,14 +102,14 @@ export class WebSocketHandler{
     private sendMessage(): void{
         const param = { text: (document.getElementById('textInput') as HTMLInputElement).value, username: this.username }
         const message = {command: 'chatMessage', params: param}
-        this.ws.send(JSON.stringify(message));
+        this.ws?.send(JSON.stringify(message));
         (document.getElementById('textInput') as HTMLInputElement).value = '';
-        document.getElementById('textInput').focus();
+        (document.getElementById('textInput') as HTMLInputElement).focus();
     }
 }
 
 export class WebSocketFactory{
-    public static async start(username){
+    public static async start(username: string){
         const webSocketHandler = new WebSocketHandler();
         webSocketHandler.init(username);
         return webSocketHandler;
