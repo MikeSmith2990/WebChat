@@ -1,4 +1,4 @@
-import Message from "../../lib/message"
+import Message from "./message"
 
 const websocketAddress = 'ws://127.0.0.1:7071/ws'
 
