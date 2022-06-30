@@ -1,4 +1,4 @@
-import Message from "./message"
+import Message from "../../../lib/message"
 
 const websocketAddress = 'ws://127.0.0.1:7071/ws'
 
@@ -10,15 +10,11 @@ export class WebSocketHandler{
     constructor () {
     }
 
-    public async init(username: string){
+    public async init(){
         console.log('Initializing websocket...')
-        this.username = username
+        
         this.ws = await this.connectToServer()
         this.initHandlers(this.ws)
-
-        //send username
-        const messageBody = { params: {username: this.username}, command: "setUsername"}
-        this.ws.send(JSON.stringify(messageBody));
 
         console.log('init complete!')
     }
@@ -74,6 +70,11 @@ export class WebSocketHandler{
         })
         console.log('listener added!')
     }
+
+    // need to figure out what this returns. some kinda message? with the session ID?
+    public async validateUsername(message: Message): boolean{
+        // send username to server, await return message
+    }
     
     // Append incoming message to the chat window
     private appendMessage(message: Message): void{
@@ -109,9 +110,19 @@ export class WebSocketHandler{
 }
 
 export class WebSocketFactory{
-    public static async start(username: string){
+    public async start(){
         const webSocketHandler = new WebSocketHandler();
-        webSocketHandler.init(username);
+        await webSocketHandler.init();
         return webSocketHandler;
     }
 }
+
+
+
+async function startedWebsocket() {
+    const wsf = new WebSocketFactory();
+    const ws = await wsf.start();
+    return ws;
+  }
+
+export default startedWebsocket();

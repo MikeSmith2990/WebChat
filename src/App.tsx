@@ -1,7 +1,12 @@
 import {useState} from 'react'
-import Login from './compontents/login';
+import Login from './components/login';
+import { WebSocketHandler } from './components/websocket-handler/websocket-handler';
 
-const App = () => {
+export interface AppProps {
+  ws: WebSocketHandler;
+}
+
+const App = (props: AppProps) => {
   const[username, setUsername] = useState('')
   
   const handleLogin = (u: string) => {
@@ -9,9 +14,17 @@ const App = () => {
     console.log(u)
   }
   
-  return (
-    <Login handleLogin={handleLogin} />
-  )
+  // if username is not validated, render the login component
+  if(username == '')
+  {
+    return (
+      <Login handleLogin={handleLogin} ws={props.ws} />
+    )
+  }
+  else{
+    return(null); // chat render
+  }
+  
 }
 
 export default App
