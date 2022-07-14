@@ -19,6 +19,7 @@ const Login = (props: LoginProps) => {
 
         // validate our username here
         var res = await props.ws.validateUsername(username);
+        console.log(res);
         if(!res){
             // failed to validate
         }

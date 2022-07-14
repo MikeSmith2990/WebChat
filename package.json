@@ -23,7 +23,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "start-api": "tsc --project ./api/tsconfig.json && node ./api/dist/main.js"
+    "start-api": "tsc --project ./api/tsconfig.json && node ./api/dist/api/src/main.js"
   },
   "eslintConfig": {
     "extends": [
