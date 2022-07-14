@@ -5,10 +5,10 @@ const wss = new webSocket.Server({ port: 7071 });
 const clients = new Map();
 
 wss.on('connection', (ws) => {
-    const id = uuidv4();
-    console.log("connection made: " + id)
+    const sessionID = uuidv4();
+    console.log("connection made: " + sessionID)
     const color = Math.floor(Math.random() * 999999);
-    const metadata = { id, color, username : '' };
+    const metadata = { sessionID, color, username : '', valid : false };
 
     clients.set(ws, metadata);
 
@@ -20,38 +20,65 @@ wss.on('connection', (ws) => {
       console.log(client.username)
 
       switch (request.command) {
-        case 'setUsername':
-          // set the username server-side and reply to client with their client data to affirm
-          client.username = request.params.username
-          const responseParams = {
-            id : client.id,
-            color: client.color,
-            username: client.username,
+        case 'validateUsername':
+          // set the username server-side and reply to client with their sessionID to signal validity
+
+          let responseParams = {};
+          if(/^[A-Za-z0-9]*$/.test(request.params.username)){
+            client.username = request.params.username
+            client.valid = true;
+
+            responseParams = {
+              sessionID : client.sessionID,
+              color: client.color,
+              username: client.username,
+            }
+            console.log("username set to: " + client.username)
+
+                //join message
+            clients.forEach((client, ws) => {
+              if(client.valid){
+                const message = new Message()
+                message.command = 'serverMessage'
+                message.params = {text: "User Joined!"}
+                ws.send(JSON.stringify(message));
+              }
+            });
           }
+          else{
+            client.username = '';
+
+            responseParams = {
+              sessionID : null,
+              color: client.color,
+              username: client.username,
+            }
+            console.log("Invalid username received")
+          }
+
           const response = new Message()
-          response.command = 'setUsername'
+          response.command = 'handleValidationMessage'
           response.params = responseParams
           ws.send(JSON.stringify({response}))
-          console.log("username set to: " + client.username)
+          
 
         case 'chatMessage':
-          // relay chat message to all connected clients
+          // relay chat message to all valid connected clients if client that sent was valid.
+          if(!client.valid){
+            return;
+          }
+
           request.params.username = client.username
           request.params.color = client.color
           clients.forEach((client, ws) => {
-            ws.send(JSON.stringify(request));
+            if(client.valid){
+              ws.send(JSON.stringify(request));
+            }
           });
       }
 
     });  
 
-    //join message
-    clients.forEach((client, ws) => {
-      const message = new Message()
-      message.command = 'serverMessage'
-      message.params = {text: "User Joined!"}
-      ws.send(JSON.stringify(message));
-    });
 });
 
 wss.on("close", (ws: any) => {

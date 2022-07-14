@@ -46,10 +46,9 @@ export class WebSocketHandler{
                     //add message to chat log
                     this.appendMessage(message)
                     break;
-                case 'setUsername':
-                    console.log('username set')
-                    //set username
-                    this.username = params.username
+                case 'handleValidationMessage':
+                    this.loginValidationReceived = true;
+                    this.sessionID = params.sessionID;
                     break;
                 default:
                     console.log('unknown command')
@@ -71,9 +70,24 @@ export class WebSocketHandler{
         console.log('listener added!')
     }
 
+    private loginValidationReceived = false;
+    private sessionID: string | null = null;
     // need to figure out what this returns. some kinda message? with the session ID?
-    public async validateUsername(message: Message): boolean{
+
+    public async validateUsername(username: string): Promise<string | null>{
         // send username to server, await return message
+        const param = { username };
+        const message = {command: 'validateUsername', params: param}
+        this.ws?.send(JSON.stringify(message));
+
+        return new Promise((resolve) => {
+            const timer = setInterval(() => {
+                if (this.loginValidationReceived) {
+                    clearInterval(timer);
+                    resolve(this.sessionID)
+                }
+            }, 100)
+        })
     }
     
     // Append incoming message to the chat window

@@ -14,13 +14,19 @@ const Login = (props: LoginProps) => {
         setUsername(e.target.value)
     }
 
-    const validateUsername = (event: React.FormEvent) => {
+    const validateUsername = async (event: React.FormEvent) => {
         event.preventDefault()
 
         // validate our username here
-        props.ws.validateUsername(username);
+        var res = await props.ws.validateUsername(username);
+        if(!res){
+            // failed to validate
+        }
+        else{
+            // validated
+        }
 
-        // if we get back session ID and username back, go ahead adn set username
+        // if we get back session ID and username back, go ahead and set username
         // else, set error message
 
         //validate username via websocket
